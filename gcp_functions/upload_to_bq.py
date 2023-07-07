@@ -1,3 +1,5 @@
+from google.cloud import bigquery
+
 def upload_to_bq(table_id, dataframe, schema, write_type="WRITE_TRUNCATE"):
     """BigQuery Table Truncate/Append
 
@@ -15,7 +17,6 @@ def upload_to_bq(table_id, dataframe, schema, write_type="WRITE_TRUNCATE"):
         Printed text indicating if the loaded data was successful
     """
 
-    from google.cloud import bigquery
     client = bigquery.Client()
     
     job_config = bigquery.LoadJobConfig(schema=schema, write_disposition=write_type)
