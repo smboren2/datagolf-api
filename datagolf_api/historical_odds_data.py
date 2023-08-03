@@ -1,5 +1,5 @@
-import get_dg_api_data as main
 import time
+import get_dg_api_data as main
 
 def get_historical_odds_events(**kwargs):
     """

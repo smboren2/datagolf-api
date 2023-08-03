@@ -1,6 +1,5 @@
 import get_dg_api_data as main
 
-# ------------ General Use ------------
 def get_player_list(**kwargs):
     """Returns the list of players who have played on a "major tour" since 2018, or are playing on a major 
         tour this week. IDs, country, amateur status included.

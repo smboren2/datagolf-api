@@ -1,10 +1,7 @@
 import requests 
-from os.path import join
-from pandas import read_csv
+import os
+import pandas as pd
 from io import StringIO
-from itertools import product
-import time
-
 
 def get_dg_api_data(primary_path: str, secondary_path: str, **kwargs):
     """Datagolf API call
@@ -24,7 +21,7 @@ def get_dg_api_data(primary_path: str, secondary_path: str, **kwargs):
         depending on file_format requested, json or csv
     """
 
-    url = join('https://feeds.datagolf.com', primary_path, secondary_path)
+    url = os.path.join('https://feeds.datagolf.com', primary_path, secondary_path)
 
     response = requests.get(url, kwargs)
 
@@ -36,6 +33,6 @@ def get_dg_api_data(primary_path: str, secondary_path: str, **kwargs):
     if response.status_code != 200 or response.content.decode('utf-8') == '\n':
         data = 'skip'
     else: 
-        data = read_csv(StringIO(response.content.decode('utf-8')))
+        data = pd.read_csv(StringIO(response.content.decode('utf-8')))
         
     return data
