@@ -8,15 +8,18 @@ import api.utils as utils
 def update_historical_raw_data(request):
 
     dg_api = getenv("DG_API")
+    projectid = getenv('GCP_PROJECT_ID')
+    tablename = getenv('BQ_TABLE')
+    datasetnm = 'event-list'
+
+    bq_table = projectid + '.' + tablename + '.' + datasetnm
+
     client = bigquery.Client()
 
     primary_params = {'file_format': 'csv', 'key': dg_api}
 
     # query current table for events
-    query_job = client.query("""
-    SELECT CONCAT(calendar_year, '-', tour, '-', event_id) AS event_concat
-    FROM `golf-predict.historical_raw_data.event-list`
-    """)
+    query_job = client.query(f"SELECT CONCAT(calendar_year, '-', tour, '-', event_id) AS event_concat FROM `{bq_table}`")
 
     bq_events = query_job.result().to_dataframe()['event_concat']
 
@@ -43,7 +46,7 @@ def update_historical_raw_data(request):
         event_df = pd.concat(event_list)
 
         # get table schema
-        table = client.get_table('golf-predict.historical_raw_data.rounds')
+        table = client.get_table(f'{projectid}.{tablename}.rounds')
         table_cols = [f"{schema.name}" for schema in table.schema]
 
         if set(table_cols).issubset(event_df.columns):
@@ -56,20 +59,20 @@ def update_historical_raw_data(request):
         rounds_schema = [{'name':i.name, 'type':i.field_type} for i in table.schema]
         
         utils.upload_to_bq(
-            table_id = 'golf-predict.historical_raw_data.rounds', 
+            table_id = f'{projectid}.{tablename}.rounds', 
             dataframe = df_to_append, 
             schema = rounds_schema,
             write_type = "WRITE_APPEND"
         )
         
         # update events
-        table = client.get_table('golf-predict.historical_raw_data.event-list')
+        table = client.get_table(f'{projectid}.{tablename}.event-list')
         events_schema = [{'name':i.name, 'type':i.field_type} for i in table.schema]
 
         events_to_append = dg_df[~dg_events.isin(bq_events)]
         
         utils.upload_to_bq(
-            table_id = 'golf-predict.historical_raw_data.event-list', 
+            table_id = f'{projectid}.{tablename}.event-list', 
             dataframe = events_to_append, 
             schema = events_schema, 
             write_type="WRITE_APPEND"
