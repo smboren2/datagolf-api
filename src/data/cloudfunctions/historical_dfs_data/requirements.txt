@@ -1,0 +1,7 @@
+# Function dependencies, for example:
+# package>=version
+pandas==2.0.3
+numpy==1.25.2
+requests==2.31.0
+google-cloud-bigquery
+db-dtypes
